@@ -1,26 +1,26 @@
 import { Link } from "react-router-dom";
 import { Header } from "../components/Header";
+import ImgHeader from "../assets/logo_principal.jpg";
+import ImgLogin from "../assets/logo_login.webp";
 
 export const Login = () => {
   return (
     <>
       <Header>
-        <div className="row" style={{ gap: "36px" }}>
+        <div className="login-row header-left">
           <Link to={"/"} className="text-link">
             Home
           </Link>
         </div>
-        <div style={{ width: "50%", backgroundColor: "#33333380" }}>Logo</div>
+        <div className="login-row header-center">
+          <img className="img-header" src={ImgHeader} />
+        </div>
+        <div className="login-row header-right"></div>
       </Header>
       <div className="container d-flex justify-content-center mt-5">
         <div className="col-md-6 p-3 rounded shadow bg-light">
           <div className="d-flex justify-content-center">
-            <div
-              className="bg-secondary rounded-circle mb-3 text-center"
-              style={{ height: "100px", width: "100px" }}
-            >
-              Logo
-            </div>
+            <img className="img-login" src={ImgLogin} />
           </div>
           <div className="row mb-3">
             <div className="row mb-3">

@@ -1,3 +1,5 @@
+@import url("https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css");
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -12,7 +14,7 @@ code {
     monospace;
 }
 
-.header-container{
+.header-container {
   height: 80px;
   background-color: rgb(16, 93, 118);
   color: #FFF;
@@ -23,7 +25,7 @@ code {
   padding: 0 24px;
 }
 
-.footer-container{
+.footer-container {
   display: flex;
   width: 100vw;
   position: absolute;
@@ -31,7 +33,8 @@ code {
   height: 60px;
   margin-top: 60px;
   background-color: rgb(16, 93, 118);
-} 
+}
+
 .login-row {
   display: flex;
   gap: 12px;
@@ -51,4 +54,68 @@ code {
 
 .text-decoration {
   text-decoration: underline;
+}
+
+.home-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.home-content {
+  height: calc(100vh - 140px);
+  max-height: calc(100vh - 140px);
+  background-color: red;
+}
+
+.img-home {
+  width: 100%;
+  height: 100%;
+}
+
+.img-header {
+  height: 70px;
+  width: 120px;
+  object-fit: fill;
+}
+
+.header-left {
+  width: 30%;
+  gap: 36px;
+  justify-content: flex-start;
+}
+
+.header-center {
+  width: 40%;
+  gap: 36px;
+  justify-content: center;
+}
+
+.header-right {
+  width: 30%;
+  gap: 36px;
+  justify-content: flex-end;
+}
+
+.img-login {
+  height: 120px;
+  width: 120px;
+  margin-bottom: 24px;
+  border-radius: 50%;
+}
+
+.text-justify {
+  text-align: justify;
+}
+
+.footer-right {
+  width: 30%;
+  gap: 36px;
+  justify-content: flex-end;
+  margin-right: 24px;
+  align-items: center;
+}
+
+.footer-right i {
+ font-size: 30px;
+ color: #FFF;
 }
