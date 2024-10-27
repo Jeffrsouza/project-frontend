@@ -1,13 +1,16 @@
 {
   "files": {
-    "main.css": "/project-frontend/static/css/main.4a89615f.css",
-    "main.js": "/project-frontend/static/js/main.c6357706.js",
+    "main.css": "/project-frontend/static/css/main.d432ef46.css",
+    "main.js": "/project-frontend/static/js/main.8d7617cb.js",
+    "static/media/logo_login.webp": "/project-frontend/static/media/logo_login.cdaa8dda001ab6b3d6fc.webp",
+    "static/media/logo_principal.jpg": "/project-frontend/static/media/logo_principal.c2a3f7993f625cdc0966.jpg",
+    "static/media/logo_tela_inicial.jpg": "/project-frontend/static/media/logo_tela_inicial.0a952ce554b3547b453e.jpg",
     "index.html": "/project-frontend/index.html",
-    "main.4a89615f.css.map": "/project-frontend/static/css/main.4a89615f.css.map",
-    "main.c6357706.js.map": "/project-frontend/static/js/main.c6357706.js.map"
+    "main.d432ef46.css.map": "/project-frontend/static/css/main.d432ef46.css.map",
+    "main.8d7617cb.js.map": "/project-frontend/static/js/main.8d7617cb.js.map"
   },
   "entrypoints": [
-    "static/css/main.4a89615f.css",
-    "static/js/main.c6357706.js"
+    "static/css/main.d432ef46.css",
+    "static/js/main.8d7617cb.js"
   ]
 }
