@@ -5,6 +5,7 @@ import { Servicos } from "./Servicos";
 import { Historico } from "./Historico";
 import ImgHeader from "../../assets/logo_principal.jpg";
 import { About } from "./About";
+import { Funcionarios } from "./Funcionarios";
 
 export const Home = () => {
   const [page, setPage] = useState(1);
@@ -13,7 +14,8 @@ export const Home = () => {
     ({
       1: <Historico />,
       2: <Servicos />,
-      3: <About />,
+      3: <Funcionarios />,
+      4: <About />,
     }[page]);
 
   return (
@@ -38,6 +40,12 @@ export const Home = () => {
           <span
             onClick={(_) => setPage(3)}
             className={`text-link ${page === 3 ? "text-decoration" : ""}`}
+          >
+            Funcionários
+          </span>
+          <span
+            onClick={(_) => setPage(4)}
+            className={`text-link ${page === 4 ? "text-decoration" : ""}`}
           >
             Sobre nós
           </span>

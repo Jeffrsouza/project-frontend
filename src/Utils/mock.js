@@ -150,6 +150,46 @@ export const mockServicos = [
   },
 ];
 
+export const mockFuncionarios = [
+  {
+    id: 1,
+    nome: "João",
+    celular: "9999-9999",
+    email: "joao@mail.com",
+    senha: "",
+  },
+  {
+    id: 2,
+    nome: "Maria",
+    celular: "9999-9999",
+    email: "maria@mail.com",
+    senha: "",
+  },
+  {
+    id: 3,
+    nome: "José",
+    celular: "9999-9999",
+    email: "jose@mail.com",
+    senha: "",
+  },
+  {
+    id: 4,
+    nome: "Marta",
+    celular: "9999-9999",
+    email: "marta@mail.com",
+    senha: "",
+  },
+];
+
+export const funcionarioDefault = {
+  id: 0,
+  nome: "",
+  celular: "",
+  email: "",
+  senha: "",
+};
+
+
 export const servicoDefault = {
   valor: null,
   descricao: "",
