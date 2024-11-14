@@ -1,6 +1,6 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Header } from "../../components/Header";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Servicos } from "./Servicos";
 import { Historico } from "./Historico";
 import ImgHeader from "../../assets/logo_principal.jpg";
@@ -8,7 +8,22 @@ import { About } from "./About";
 import { Funcionarios } from "./Funcionarios";
 
 export const Home = () => {
+  const navigate = useNavigate();
+
   const [page, setPage] = useState(1);
+
+  useEffect(() => {
+    try {
+      const usuarioStorage = sessionStorage.getItem("usuario");
+      const usuario = JSON.parse(usuarioStorage);
+      if (!usuario) {
+        navigate("/");
+        throw new Error("Dados inválidos.");
+      }
+    } catch {
+      navigate("/");
+    }
+  });
 
   const Page = () =>
     ({
@@ -17,6 +32,8 @@ export const Home = () => {
       3: <Funcionarios />,
       4: <About />,
     }[page]);
+
+  const clearSession = () => sessionStorage.setItem("usuario", "");
 
   return (
     <>
@@ -49,7 +66,7 @@ export const Home = () => {
           >
             Sobre nós
           </span>
-          <Link to={"/"} className="text-link">
+          <Link onClick={clearSession} to={"/"} className="text-link">
             Sair
           </Link>
         </div>

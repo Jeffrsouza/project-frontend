@@ -1,46 +1,72 @@
-import { useState } from "react";
-import {
-  historicoDefault,
-  mockClientes,
-  mockHistoricos,
-  mockServicos,
-} from "../../Utils/mock";
-import { formatCurrency, formatDate, getStatusName } from "../../Utils";
+import { useEffect, useState } from "react";
+import { historicoDefault, mockServicos } from "../../utils/mock";
+import { formatCurrency, formatDate, getStatusName } from "../../utils";
+import { AgendamentoApi } from "../../api/AgendamentoApi";
+import { ServicoApi } from "../../api/ServicoApi";
+import { useNavigate } from "react-router-dom";
 
 export const Historico = () => {
-  const [historicos, setHistoricos] = useState(mockHistoricos.filter(x => x.id === 1));
+  const [historicos, setHistoricos] = useState([]);
   const [historico, setHistorico] = useState(historicoDefault);
+  const [servicos, setServicos] = useState(null);
+  const [usuario, setUsuario] = useState(null);
 
-  const onCancel = (id) => {
-    const _historicos = historicos.map((x) =>
-      x.id === id ? { ...x, status: 3 } : x
-    );
-    setHistoricos(_historicos);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    fetchHistoricosData();
+  }, []);
+
+  const fetchHistoricosData = async () => {
+    const usuarioStorage = await sessionStorage.getItem("usuario");
+    const _usuario = await JSON.parse(usuarioStorage);
+
+    try {
+      if (!_usuario) {
+        navigate("/");
+        throw new Error("Dados inválidos.");
+      }
+
+      setUsuario({ ..._usuario, senha: "" });
+    } catch {
+      alert("Erro ao carregar usuário.");
+      navigate("/");
+    }
+    const historicoResponse = await AgendamentoApi.GetByCliente(_usuario.id);
+    setHistoricos(historicoResponse);
+
+    const servicoResponse = await ServicoApi.GetAll();
+    setServicos(servicoResponse);
   };
 
-  const onAdd = () => {
-    const _servico = mockServicos.find((x) => x.id === historico.servicoId);
+  const onAdd = async () => {
+    const _servico = servicos.find((x) => x.id === historico.servicoId);
     if (!_servico) {
       alert("Selecione um serviço");
       return;
     }
 
-    const _cliente = mockClientes.find((x) => x.id === 1);
-
-    const nextId = Math.max(...historicos.map((x) => x.id)) + 1;
     const _historico = {
-      id: nextId,
       observacao: historico.observacao,
       data: new Date(historico.data),
       status: 1,
       servico: _servico,
-      cliente: _cliente,
+      cliente: usuario,
     };
 
-    console.log(_historico);
+    const response = await AgendamentoApi.InsertAgendamento(_historico);
 
-    setHistoricos((prev) => [...prev, _historico]);
+    if (response.status !== 200) {
+      return;
+    }
+    await fetchHistoricosData();
+
     setHistorico(historicoDefault);
+  };
+
+  const onCancel = async (id) => {
+    await AgendamentoApi.UpdateAgendamentoStatus(id, 3);
+    await fetchHistoricosData();
   };
 
   return (
@@ -62,8 +88,8 @@ export const Historico = () => {
               }
             >
               <option value={0}>Selecione o serviço</option>
-              {mockServicos.map((x) => (
-                <option value={x.id}>{`${x?.descricao} - ${formatCurrency(
+              {servicos?.length > 0 && servicos.map((x) => (
+                <option value={x.id} key={x.id}>{`${x?.descricao} - ${formatCurrency(
                   x.valor
                 )}`}</option>
               ))}
@@ -122,20 +148,21 @@ export const Historico = () => {
               </tr>
             </thead>
             <tbody>
-              {historicos.map((historico) => (
-                <tr>
-                  <td>{`${historico.servico?.descricao}`}</td>
-                  <td>{formatCurrency(historico.servico.valor || 0)}</td>
-                  <td>{formatDate(historico.data)}</td>
-                  <td>{historico.observacao}</td>
-                  <td>{getStatusName(historico.status)}</td>
-                  <td>
-                    <a href="#" onClick={(_) => onCancel(historico.id)}>
-                      Cancelar
-                    </a>
-                  </td>
-                </tr>
-              ))}
+              {historicos?.length > 0 &&
+                historicos.map((historico) => (
+                  <tr key={historico.id}>
+                    <td>{`${historico.servico?.descricao}`}</td>
+                    <td>{formatCurrency(historico.servico.valor || 0)}</td>
+                    <td>{formatDate(historico.data)}</td>
+                    <td>{historico.observacao}</td>
+                    <td>{getStatusName(historico.status)}</td>
+                    <td>
+                      <a href="#" onClick={(_) => onCancel(historico.id)}>
+                        Cancelar
+                      </a>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>

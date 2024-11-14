@@ -1,22 +1,32 @@
-import { useState } from "react";
-import { formatCurrency } from "../../Utils";
-import { mockServicos, servicoDefault } from "../../Utils/mock";
+import { useEffect, useState } from "react";
+import { formatCurrency } from "../../utils";
+import { servicoDefault } from "../../utils/mock";
+import { ServicoApi } from "../../api/ServicoApi";
 
 export const Servicos = () => {
-  const [servicos, setServicos] = useState(mockServicos);
+  const [servicos, setServicos] = useState(null);
   const [servico, setServico] = useState(servicoDefault);
 
-  const onAddServico = () => {
-    const _servico = {
-      ...servico,
-      id: Math.max(...servicos.map((s) => s.id)) + 1,
-    };
-    setServicos([...servicos, _servico]);
+  useEffect(() => {
+    fetchServicosData();
+  }, []);
+
+  const fetchServicosData = async () => {
+    const response = await ServicoApi.GetAll();
+    setServicos(response);
+  };
+
+  const onAddServico = async () => {
+    await ServicoApi.InsertServico(servico);
+    await fetchServicosData();
     setServico(servicoDefault);
   };
 
-  const onDelete = (id) =>
-    setServicos([...servicos.filter((s) => s.id !== id)]);
+  const onDelete = async (id) => {
+    await ServicoApi.DeleteServico(id);
+    await fetchServicosData();
+    setServico(servicoDefault);
+  };
 
   return (
     <div className="container d-flex justify-content-center mt-5">
@@ -38,7 +48,7 @@ export const Servicos = () => {
             <input
               className="form-control"
               type="number"
-              value={servico.valor}
+              value={servico.valor.toString()}
               onChange={(e) =>
                 setServico((prev) => ({
                   ...prev,
@@ -84,20 +94,19 @@ export const Servicos = () => {
               </tr>
             </thead>
             <tbody>
-              {servicos.map((servico) => (
-                <tr>
-                  <td>{servico.descricao || "-"}</td>
-                  <td>{formatCurrency(servico.valor || 0)}</td>
-                  <td>{servico.tempo}</td>
-                  <td>
-                    <a href="#"
-                      onClick={(_) => onDelete(servico.id)}
-                    >
-                      Deletar
-                    </a>
-                  </td>
-                </tr>
-              ))}
+              {servicos?.length > 0 &&
+                servicos.map((servico) => (
+                  <tr key={servico.id}>
+                    <td>{servico.descricao || "-"}</td>
+                    <td>{formatCurrency(servico.valor || 0)}</td>
+                    <td>{servico.tempo}</td>
+                    <td>
+                      <a href="#" onClick={(_) => onDelete(servico.id)}>
+                        Deletar
+                      </a>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>

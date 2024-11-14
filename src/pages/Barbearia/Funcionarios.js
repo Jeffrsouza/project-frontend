@@ -1,25 +1,55 @@
-import { useState } from "react";
-import { funcionarioDefault, mockFuncionarios } from "../../Utils/mock";
+import { useEffect, useState } from "react";
+import { usuarioDefault } from "../../utils/mock";
+import { UsuarioApi } from "../../api/UsuarioApi";
+import { formatPhoneMask, ValidarNullOrEmpty } from "../../utils";
 
 export const Funcionarios = () => {
-  const [funcionario, setFuncionario] = useState(funcionarioDefault);
-  const [funcionarios, setFuncionarios] = useState(mockFuncionarios);
+  const [funcionario, setFuncionario] = useState(usuarioDefault);
+  const [funcionarios, setFuncionarios] = useState(null);
 
-  const onAddFuncionario = () => {
-    if(funcionario.senha !== funcionario.senha){
-      alert('Confirmação de senha incorreta')
+  useEffect(() => {
+    fetchFuncionariosData();
+  }, []);
+
+  const fetchFuncionariosData = async () => {
+    const response = await UsuarioApi.GetFuncionarios();
+    setFuncionarios(response);
+  };
+
+  const onAddFuncionario = async () => {
+    if (funcionario.senha !== funcionario.confirmaSenha) {
+      alert("Confirmação de senha incorreta");
       return;
     }
 
-    const _funcionario = {
-      ...funcionario,
-      id: Math.max(...funcionarios.map((s) => s.id)) + 1,
-    };
-    setFuncionarios([...funcionarios, _funcionario]);
-    setFuncionario(funcionarioDefault);
+    if (funcionario.senha.length < 8) {
+      alert("Senha deve ter pelo menos 8 dígitos");
+      return;
+    }
+
+    if (
+      !ValidarNullOrEmpty(funcionario.nome) ||
+      !ValidarNullOrEmpty(funcionario.celular) ||
+      !ValidarNullOrEmpty(funcionario.cpf) ||
+      !ValidarNullOrEmpty(funcionario.email)
+    ) {
+      alert("Dados inválidos");
+      return;
+    }
+    const _funcionario = { ...funcionario, tipo: 1 };
+    const response = await UsuarioApi.InsertUsuario(_funcionario);
+
+    if (response.status !== 200) {
+      alert(response.data.statusMessage);
+      return;
+    }
+
+    await fetchFuncionariosData();
+    setFuncionario(usuarioDefault);
   };
 
-  const onDelete = (id) => setFuncionarios(funcionarios.filter(x => x.id !== id));
+  // const onDelete = (id) =>
+  //   setFuncionarios(funcionarios.filter((x) => x.id !== id));
 
   return (
     <div className="container d-flex justify-content-center mt-5">
@@ -42,7 +72,10 @@ export const Funcionarios = () => {
               className="form-control"
               value={funcionario.celular}
               onChange={(e) =>
-                setFuncionario((prev) => ({ ...prev, celular: e.target.value }))
+                setFuncionario((prev) => ({
+                  ...prev,
+                  celular: formatPhoneMask(e.target.value),
+                }))
               }
             />
           </div>
@@ -56,9 +89,10 @@ export const Funcionarios = () => {
               }
             />
           </div>
-          <div className="col-md-4 mt-3">
+          <div className="col-md-3 mt-3">
             <label>Senha</label>
             <input
+              type="password"
               className="form-control"
               value={funcionario.senha}
               onChange={(e) =>
@@ -66,17 +100,34 @@ export const Funcionarios = () => {
               }
             />
           </div>
-          <div className="col-md-4 mt-3">
+          <div className="col-md-3 mt-3">
             <label>Confirmar Senha</label>
             <input
+              type="password"
               className="form-control"
-              value={funcionario.senhaConfirmacao}
+              value={funcionario.confirmaSenha}
               onChange={(e) =>
-                setFuncionario((prev) => ({ ...prev, senhaConfirmacao: e.target.value }))
+                setFuncionario((prev) => ({
+                  ...prev,
+                  confirmaSenha: e.target.value,
+                }))
               }
             />
           </div>
-          <div className="col-md-4 d-flex">
+          <div className="col-md-3 mt-3">
+            <label>CPF</label>
+            <input
+              className="form-control"
+              value={funcionario.cpf}
+              onChange={(e) =>
+                setFuncionario((prev) => ({
+                  ...prev,
+                  cpf: e.target.value,
+                }))
+              }
+            />
+          </div>
+          <div className="col-md-3 d-flex">
             <button
               onClick={onAddFuncionario}
               className="form-control align-self-end btn btn-success"
@@ -90,25 +141,26 @@ export const Funcionarios = () => {
           <table className="table table-striped table-bordered">
             <thead>
               <tr>
-                <th scope="col">Descrição</th>
-                <th scope="col">Valor</th>
-                <th scope="col">Tempo</th>
-                <th scope="col">Ações</th>
+                <th scope="col">Nome</th>
+                <th scope="col">Celular</th>
+                <th scope="col">E-mail</th>
+                {/* <th scope="col">Ações</th> */}
               </tr>
             </thead>
             <tbody>
-              {funcionarios.map((item) => (
-                <tr>
-                  <td>{item.nome}</td>
-                  <td>{item.celular}</td>
-                  <td>{item.email}</td>
-                  <td>
+              {funcionarios?.length > 0 &&
+                funcionarios.map((item,idx) => (
+                  <tr key={idx}>
+                    <td>{item.nome}</td>
+                    <td>{item.celular}</td>
+                    <td>{item.email}</td>
+                    {/* <td>
                     <a href="#" onClick={(_) => onDelete(item.id)}>
                       Deletar
                     </a>
-                  </td>
-                </tr>
-              ))}
+                  </td> */}
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>

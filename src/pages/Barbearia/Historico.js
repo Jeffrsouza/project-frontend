@@ -1,31 +1,44 @@
-import { useState } from "react";
-import {
-  historicoDefault,
-  mockClientes,
-  mockHistoricos,
-  mockServicos,
-} from "../../Utils/mock";
-import { formatCurrency, formatDate, getStatusName } from "../../Utils";
+import { useEffect, useState } from "react";
+import { historicoDefault, mockClientes, mockServicos } from "../../utils/mock";
+import { formatCurrency, formatDate, getStatusName } from "../../utils";
+import { AgendamentoApi } from "../../api/AgendamentoApi";
+import { ServicoApi } from "../../api/ServicoApi";
+import { UsuarioApi } from "../../api/UsuarioApi";
 
 export const Historico = () => {
-  const [historicos, setHistoricos] = useState(mockHistoricos);
+  const [historicos, setHistoricos] = useState([]);
   const [historico, setHistorico] = useState(historicoDefault);
+  const [servicos, setServicos] = useState(null);
+  const [clientes, setClientes] = useState(null);
 
-  const onDelete = (id) =>
-    setHistoricos([...historicos.filter((x) => x.id !== id)]);
+  useEffect(() => {
+    fetchHistoricosData();
+  }, []);
 
-  const onAdd = () => {
-    const _servico = mockServicos.find((x) => x.id === historico.servicoId);
+  const fetchHistoricosData = async () => {
+    const historicoResponse = await AgendamentoApi.GetAll();
+    setHistoricos(historicoResponse);
+
+    const servicoRsponse = await ServicoApi.GetAll();
+    setServicos(servicoRsponse);
+
+    const clienteRsponse = await UsuarioApi.GetClientes();
+    setClientes(clienteRsponse);
+  };
+
+  const onAdd = async () => {
+    const _servico = servicos.find((x) => x.id === historico.servicoId);
     if (!_servico) {
       alert("Selecione um serviço");
       return;
     }
+    const _cliente = clientes.find((x) => x.id === historico.clienteId);
+    if (!_cliente) {
+      alert("Selecione um cliente");
+      return;
+    }
 
-    const _cliente = mockClientes.find((x) => x.id === historico.clienteId);
-
-    const nextId = Math.max(...historicos.map((x) => x.id)) + 1;
     const _historico = {
-      id: nextId,
       observacao: historico.observacao,
       data: new Date(historico.data),
       status: 1,
@@ -33,10 +46,25 @@ export const Historico = () => {
       cliente: _cliente,
     };
 
-    console.log(_historico)
+    const response = await AgendamentoApi.InsertAgendamento(_historico);
+    console.log(response);
 
-    setHistoricos((prev) => [...prev, _historico]);
+    if (response.status !== 200) {
+      return;
+    }
+    await fetchHistoricosData();
+
     setHistorico(historicoDefault);
+  };
+
+  const onComplete = async (id) => {
+    await AgendamentoApi.UpdateAgendamentoStatus(id, 2);
+    await fetchHistoricosData();
+  };
+
+  const onCancel = async (id) => {
+    await AgendamentoApi.UpdateAgendamentoStatus(id, 3);
+    await fetchHistoricosData();
   };
 
   return (
@@ -57,11 +85,13 @@ export const Historico = () => {
               }
             >
               <option value={0}>Selecione o cliente</option>
-              {mockClientes.map((x) => (
-                <option
-                  value={x.id}
-                >{`#${x.id} ${x?.nome} | ${x?.celular}`}</option>
-              ))}
+              {clientes?.length > 0 &&
+                clientes.map((x) => (
+                  <option
+                    key={x.id}
+                    value={x.id}
+                  >{`#${x.id} ${x?.nome} | ${x?.celular}`}</option>
+                ))}
             </select>
           </div>
 
@@ -78,11 +108,12 @@ export const Historico = () => {
               }
             >
               <option value={0}>Selecione o serviço</option>
-              {mockServicos.map((x) => (
-                <option value={x.id}>{`${x?.descricao} - ${formatCurrency(
-                  x.valor
-                )}`}</option>
-              ))}
+              {servicos?.length > 0 &&
+                servicos.map((x) => (
+                  <option value={x.id} key={x.id}>{`${x?.descricao} - ${formatCurrency(
+                    x.valor
+                  )}`}</option>
+                ))}
             </select>
           </div>
 
@@ -134,30 +165,33 @@ export const Historico = () => {
                 <th scope="col">Cliente</th>
                 <th scope="col">Data</th>
                 <th scope="col">Observação</th>
-                <th scope="col">Stauts</th>
+                <th scope="col">Status</th>
                 <th scope="col">Ações</th>
               </tr>
             </thead>
             <tbody>
-              {historicos.map((historico) => (
-                <tr>
-                  <td>{`${historico.servico?.descricao}`}</td>
-                  <td>{formatCurrency(historico.servico.valor || 0)}</td>
-                  <td>{`${historico.cliente?.nome || ""} - ${historico.cliente?.celular || ""}`}</td>
-                  <td>{formatDate(historico.data)}</td>
-                  <td>{historico.observacao}</td>
-                  <td>{getStatusName(historico.status)}</td>
-                  <td>
-                    <a href="#" onClick={(_) => onDelete(historico.id)}>
-                      Deletar
-                    </a>
-                    {` | `}
-                    <a href="#" onClick={(_) => onDelete(historico.id)}>
-                      Concluir
-                    </a>
-                  </td>
-                </tr>
-              ))}
+              {historicos?.length > 0 &&
+                historicos.map((historico) => (
+                  <tr key={historico.id}>
+                    <td>{`${historico.servico?.descricao}`}</td>
+                    <td>{formatCurrency(historico.servico.valor || 0)}</td>
+                    <td>{`${historico.cliente?.nome || ""} - ${
+                      historico.cliente?.celular || ""
+                    }`}</td>
+                    <td>{formatDate(historico.data)}</td>
+                    <td>{historico.observacao}</td>
+                    <td>{getStatusName(historico.status)}</td>
+                    <td>
+                      <a href="#" onClick={(_) => onComplete(historico.id)}>
+                        Concluir
+                      </a>
+                      {" | "}
+                      <a href="#" onClick={(_) => onCancel(historico.id)}>
+                        Cancelar
+                      </a>
+                    </td>
+                  </tr>
+                ))}
             </tbody>
           </table>
         </div>

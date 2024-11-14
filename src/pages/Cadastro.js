@@ -1,9 +1,48 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Header } from "../components/Header";
 import ImgLogin from "../assets/logo_login.webp";
 import ImgHeader from "../assets/logo_principal.jpg";
+import { useState } from "react";
+import { usuarioDefault } from "../utils/mock";
+import { UsuarioApi } from "../api/UsuarioApi";
+import { formatPhoneMask, ValidarNullOrEmpty } from "../utils";
 
 export const Cadastro = () => {
+  const navigate = useNavigate();
+  const [usuario, setUsuario] = useState(usuarioDefault);
+
+  const onSave = async () => {
+    if (usuario.senha !== usuario.confirmaSenha) {
+      alert("Confirmação de senha incorreta");
+      return;
+    }
+
+    if (usuario.senha.length < 8) {
+      alert("Senha deve ter pelo menos 8 dígitos");
+      return;
+    }
+
+    if (
+      !ValidarNullOrEmpty(usuario.nome) ||
+      !ValidarNullOrEmpty(usuario.celular) ||
+      !ValidarNullOrEmpty(usuario.cpf) ||
+      !ValidarNullOrEmpty(usuario.email)
+    ) {
+      alert("Dados inválidos");
+      return;
+    }
+
+    usuario.tipo = 2;
+
+    try {
+      await UsuarioApi.InsertUsuario(usuario);
+      setUsuario(usuarioDefault);
+      navigate("/login");
+    } catch (e) {
+      alert(e);
+    }
+  };
+
   return (
     <>
       <Header>
@@ -29,7 +68,16 @@ export const Cadastro = () => {
               <label>Nome</label>
             </div>
             <div className="col-md-10">
-              <input className="form-control" />
+              <input
+                className="form-control"
+                onChange={(e) =>
+                  setUsuario((prev) => ({
+                    ...prev,
+                    nome: e.target.value,
+                  }))
+                }
+                value={usuario.nome}
+              />
             </div>
           </div>
           <div className="row mb-3">
@@ -37,7 +85,16 @@ export const Cadastro = () => {
               <label>Celular</label>
             </div>
             <div className="col-md-10">
-              <input className="form-control" />
+              <input
+                className="form-control"
+                onChange={(e) =>
+                  setUsuario((prev) => ({
+                    ...prev,
+                    celular: formatPhoneMask(e.target.value),
+                  }))
+                }
+                value={usuario.celular}
+              />
             </div>
           </div>
           <div className="row mb-3">
@@ -45,7 +102,16 @@ export const Cadastro = () => {
               <label>CPF</label>
             </div>
             <div className="col-md-10">
-              <input className="form-control" />
+              <input
+                className="form-control"
+                onChange={(e) =>
+                  setUsuario((prev) => ({
+                    ...prev,
+                    cpf: e.target.value,
+                  }))
+                }
+                value={usuario.cpf}
+              />
             </div>
           </div>
           <div className="row mb-3">
@@ -53,7 +119,16 @@ export const Cadastro = () => {
               <label>E-mail</label>
             </div>
             <div className="col-md-10">
-              <input className="form-control" />
+              <input
+                className="form-control"
+                onChange={(e) =>
+                  setUsuario((prev) => ({
+                    ...prev,
+                    email: e.target.value,
+                  }))
+                }
+                value={usuario.email}
+              />
             </div>
           </div>
           <div className="row mb-3">
@@ -61,7 +136,35 @@ export const Cadastro = () => {
               <label>Senha</label>
             </div>
             <div className="col-md-10">
-              <input className="form-control" />
+              <input
+                className="form-control"
+                type="password"
+                onChange={(e) =>
+                  setUsuario((prev) => ({
+                    ...prev,
+                    senha: e.target.value,
+                  }))
+                }
+                value={usuario.senha}
+              />
+            </div>
+          </div>
+          <div className="row mb-3">
+            <div className="col-md-2">
+              <label>Confirma Senha</label>
+            </div>
+            <div className="col-md-10">
+              <input
+                className="form-control"
+                type="password"
+                onChange={(e) =>
+                  setUsuario((prev) => ({
+                    ...prev,
+                    confirmaSenha: e.target.value,
+                  }))
+                }
+                value={usuario.confirmaSenha}
+              />
             </div>
           </div>
 
@@ -72,9 +175,9 @@ export const Cadastro = () => {
               </Link>
             </div>
             <div className="col-md-3 d-flex justify-content-center">
-              <Link to={"/cliente"}>
-                <button className="btn btn-success">Cadastrar</button>
-              </Link>
+              <button className="btn btn-success" onClick={onSave}>
+                Cadastrar
+              </button>
             </div>
           </div>
         </div>

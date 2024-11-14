@@ -181,17 +181,19 @@ export const mockFuncionarios = [
   },
 ];
 
-export const funcionarioDefault = {
+export const usuarioDefault = {
   id: 0,
   nome: "",
   celular: "",
   email: "",
   senha: "",
+  confirmaSenha: "",
+  cpf: "",
+  tipo: 0,
 };
 
-
 export const servicoDefault = {
-  valor: null,
+  valor: 0,
   descricao: "",
   tempo: "01:00",
 };
