@@ -23,7 +23,7 @@ export const Home = () => {
     } catch {
       navigate("/");
     }
-  });
+  },[]);
 
   const Page = () =>
     ({

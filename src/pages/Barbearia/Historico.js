@@ -10,6 +10,7 @@ export const Historico = () => {
   const [historico, setHistorico] = useState(historicoDefault);
   const [servicos, setServicos] = useState(null);
   const [clientes, setClientes] = useState(null);
+  const [funcionarios, setFuncionarios] = useState(null);
 
   useEffect(() => {
     fetchHistoricosData();
@@ -19,11 +20,14 @@ export const Historico = () => {
     const historicoResponse = await AgendamentoApi.GetAll();
     setHistoricos(historicoResponse);
 
-    const servicoRsponse = await ServicoApi.GetAll();
-    setServicos(servicoRsponse);
+    const servicoResponse = await ServicoApi.GetAll();
+    setServicos(servicoResponse);
 
-    const clienteRsponse = await UsuarioApi.GetClientes();
-    setClientes(clienteRsponse);
+    const clienteResponse = await UsuarioApi.GetClientes();
+    setClientes(clienteResponse);
+
+    const funcionarioResponse = await UsuarioApi.GetFuncionarios();
+    setFuncionarios(funcionarioResponse);
   };
 
   const onAdd = async () => {
@@ -38,18 +42,33 @@ export const Historico = () => {
       return;
     }
 
+    const usuarioStorage = sessionStorage.getItem("usuario");
+    const usuario = JSON.parse(usuarioStorage);
+    console.log(usuario)
+    const _funcionario = funcionarios.find(
+      (x) => x.id === usuario.id
+    );
+    if (!_funcionario) {
+      alert("Selecione um profissional");
+      return;
+    }
+
     const _historico = {
       observacao: historico.observacao,
       data: new Date(historico.data),
       status: 1,
+      horas: historico.horas,
+      minutos: historico.minutos,
       servico: _servico,
       cliente: _cliente,
+      funcionario: _funcionario,
     };
 
     const response = await AgendamentoApi.InsertAgendamento(_historico);
     console.log(response);
 
     if (response.status !== 200) {
+      alert('Erro ao  adicionar agendamento: '+ response.response.data.statusMessage)
       return;
     }
     await fetchHistoricosData();
@@ -110,26 +129,72 @@ export const Historico = () => {
               <option value={0}>Selecione o serviço</option>
               {servicos?.length > 0 &&
                 servicos.map((x) => (
-                  <option value={x.id} key={x.id}>{`${x?.descricao} - ${formatCurrency(
-                    x.valor
-                  )}`}</option>
+                  <option value={x.id} key={x.id}>{`${
+                    x?.descricao
+                  } - ${formatCurrency(x.valor)}`}</option>
                 ))}
             </select>
           </div>
 
           <div className="col-md-4">
-            <label>Data/Hora</label>
-            <input
-              className="form-control"
-              type="datetime-local"
-              min={new Date()
-                .toISOString()
-                .slice(0, new Date().toISOString().lastIndexOf(":"))}
-              value={historico.data}
-              onChange={(e) =>
-                setHistorico((prev) => ({ ...prev, data: e.target.value }))
-              }
-            />
+            <div className="row">
+              <div className="col-md-8">
+                <label>Data/Hora</label>
+                <input
+                  className="form-control"
+                  type="date"
+                  min={new Date()
+                    .toISOString()
+                    .slice(0, new Date().toISOString().lastIndexOf(":"))}
+                  value={historico.data}
+                  onChange={(e) =>
+                    setHistorico((prev) => ({ ...prev, data: e.target.value }))
+                  }
+                />
+              </div>
+              <div className="col-md-2">
+                <label>Hora</label>
+                <select
+                  onChange={(e) =>
+                    setHistorico((prev) => ({
+                      ...prev,
+                      horas: Number(e.target.value),
+                    }))
+                  }
+                  className="form-control"
+                  value={historico.horas}
+                >
+                  {
+                    // TODO Deve ser carregado de acordo com a disponibilidade da barbearia
+                    [...Array(12).keys()].map(x => x + 8).map((x) => (
+                      <option key={x} value={x}>
+                        {x}
+                      </option>
+                    ))
+                  }
+                </select>
+              </div>
+
+              <div className="col-md-2">
+                <label>Minuto</label>
+                <select
+                  onChange={(e) =>
+                    setHistorico((prev) => ({
+                      ...prev,
+                      minutos: Number(e.target.value),
+                    }))
+                  }
+                  className="form-control"
+                  value={historico.minutos}
+                >
+                  {[...Array(60).keys()].map((x) => (
+                    <option key={x} value={x}>
+                      {x}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
           </div>
 
           <div className="col-md-8 mt-3">
@@ -164,6 +229,7 @@ export const Historico = () => {
                 <th scope="col">Valor</th>
                 <th scope="col">Cliente</th>
                 <th scope="col">Data</th>
+                <th scope="col">Tempo</th>
                 <th scope="col">Observação</th>
                 <th scope="col">Status</th>
                 <th scope="col">Ações</th>
@@ -173,12 +239,13 @@ export const Historico = () => {
               {historicos?.length > 0 &&
                 historicos.map((historico) => (
                   <tr key={historico.id}>
-                    <td>{`${historico.servico?.descricao}`}</td>
+                    <td>{`${historico.servico?.descricao} - ${historico.funcionario.nome}`}</td>
                     <td>{formatCurrency(historico.servico.valor || 0)}</td>
                     <td>{`${historico.cliente?.nome || ""} - ${
                       historico.cliente?.celular || ""
                     }`}</td>
-                    <td>{formatDate(historico.data)}</td>
+                    <td>{`${formatDate(historico.data)} ${historico.horas.toString().padStart(2, "0")}h${historico.minutos.toString().padStart(2, "0")}`}</td>
+                    <td>{`${historico.servico.tempoHoras.toString().padStart(2, "0")}h${historico.servico.tempoMinutos.toString().padStart(2, "0")}`}</td>
                     <td>{historico.observacao}</td>
                     <td>{getStatusName(historico.status)}</td>
                     <td>

@@ -5,10 +5,7 @@ export const formatDate = (dt) => {
   const data = new Date(dt);
   return `${String(data.getDate()).padStart(2, "0")}/${String(
     data.getMonth() + 1
-  ).padStart(2, "0")}/${data.getFullYear()} ${String(data.getHours()).padStart(
-    2,
-    "0"
-  )}:${String(data.getMinutes()).padStart(2, "0")}`;
+  ).padStart(2, "0")}/${data.getFullYear()}`;
 };
 export const getStatusName = (value) =>
   ({

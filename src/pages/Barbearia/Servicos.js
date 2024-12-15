@@ -57,22 +57,46 @@ export const Servicos = () => {
               }
             />
           </div>
-          <div className="col-md-2">
-            <label>Tempo</label>
-            <input
-              className="form-control"
-              type="time"
-              min="00:10"
-              max={"06:00"}
-              value={servico.tempo}
-              onChange={(e) =>
-                setServico((prev) => ({
-                  ...prev,
-                  tempo: e.target.value,
-                }))
-              }
-            />
-          </div>
+          <div className="col-md-1">
+                <label>Hora</label>
+                <select
+                  onChange={(e) =>
+                    setServico((prev) => ({
+                      ...prev,
+                      tempoHoras: Number(e.target.value),
+                    }))
+                  }
+                  className="form-control"
+                >
+                  {
+                    // TODO Deve ser carregado de acordo com a disponibilidade da barbearia
+                    [...Array(6).keys()].map((x) => (
+                      <option key={x} value={x}>
+                        {x}
+                      </option>
+                    ))
+                  }
+                </select>
+              </div>
+
+              <div className="col-md-1">
+                <label>Minuto</label>
+                <select
+                  onChange={(e) =>
+                    setServico((prev) => ({
+                      ...prev,
+                      tempoMinutos: Number(e.target.value),
+                    }))
+                  }
+                  className="form-control"
+                >
+                  {[...Array(61).keys()].map((x) => (
+                    <option key={x} value={x}>
+                      {x}
+                    </option>
+                  ))}
+                </select>
+              </div>
           <div className="col-md-4 d-flex">
             <button
               onClick={onAddServico}
@@ -99,7 +123,7 @@ export const Servicos = () => {
                   <tr key={servico.id}>
                     <td>{servico.descricao || "-"}</td>
                     <td>{formatCurrency(servico.valor || 0)}</td>
-                    <td>{servico.tempo}</td>
+                    <td>{servico.tempoHoras}h{servico.tempoMinutos}</td>
                     <td>
                       <a href="#" onClick={(_) => onDelete(servico.id)}>
                         Deletar

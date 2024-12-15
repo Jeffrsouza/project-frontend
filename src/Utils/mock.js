@@ -190,18 +190,25 @@ export const usuarioDefault = {
   confirmaSenha: "",
   cpf: "",
   tipo: 0,
+  horaInicio: 9,
+  horaFim: 19,
 };
 
 export const servicoDefault = {
   valor: 0,
   descricao: "",
   tempo: "01:00",
+  tempoHoras: 0,
+  tempoMinutos: 0,
 };
 
 export const historicoDefault = {
   observacao: "",
   clienteId: 0,
   servicoId: 0,
+  funcionarioId: 0,
   status: 0,
-  data: null,
+  horas: 8,
+  minutos: 0,
+  data: new Date().toISOString(),
 };

@@ -31,6 +31,8 @@ export const Funcionarios = () => {
       !ValidarNullOrEmpty(funcionario.nome) ||
       !ValidarNullOrEmpty(funcionario.celular) ||
       !ValidarNullOrEmpty(funcionario.cpf) ||
+      !ValidarNullOrEmpty(funcionario.horaInicio) ||
+      !ValidarNullOrEmpty(funcionario.horaFim) ||
       !ValidarNullOrEmpty(funcionario.email)
     ) {
       alert("Dados inválidos");
@@ -89,6 +91,36 @@ export const Funcionarios = () => {
               }
             />
           </div>
+
+          <div className="row">
+            <div className="col-md-2 mt-3">
+              <label>Horário de início</label>
+              <input
+                className="form-control"
+                value={funcionario.horaInicio}
+                onChange={(e) =>
+                  setFuncionario((prev) => ({
+                    ...prev,
+                    horaInicio: Number(e.target.value),
+                  }))
+                }
+              />
+            </div>
+            <div className="col-md-2 mt-3">
+              <label>Horário de término</label>
+              <input
+                className="form-control"
+                value={funcionario.HoraFim}
+                onChange={(e) =>
+                  setFuncionario((prev) => ({
+                    ...prev,
+                    horaFim: Number(e.target.value),
+                  }))
+                }
+              />
+            </div>
+          </div>
+
           <div className="col-md-3 mt-3">
             <label>Senha</label>
             <input
@@ -149,7 +181,7 @@ export const Funcionarios = () => {
             </thead>
             <tbody>
               {funcionarios?.length > 0 &&
-                funcionarios.map((item,idx) => (
+                funcionarios.map((item, idx) => (
                   <tr key={idx}>
                     <td>{item.nome}</td>
                     <td>{item.celular}</td>
